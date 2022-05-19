@@ -1,5 +1,5 @@
 # calculator
-The project I wrote for my IT classes at school. GUI is Tkinter.
+The project I wrote for my IT class at school. GUI is Tkinter.
 
 The calculator is capable of swapping number base system in mid-calculation.
 
