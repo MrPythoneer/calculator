@@ -8,14 +8,26 @@ def formatnum(x):
         return x
 
 
+def evaluate(expr, l=22):
+    if expr == '':
+        return '0'
+    try:
+        result = eval(expr.replace('^', '**'))
+        if len(str(result)) >= l:
+            result = '{:e}'.format(result)
+        return formatnum(result)
+    except:
+        return 'ERROR'
+
+
 class GUI:
     def __init__(self, master):
-        self.entry_font = 'Fixedsys 24'
-        self.b_font = 'Fixedsys 12'
-
         self.master = master
         master.title('Calculator')
         master.geometry('359x388')
+
+        self.entry_font = 'Fixedsys 24'
+        self.b_font = 'Fixedsys 12'
 
         self.entry = tkinter.Entry(
             master, justify='right', font=self.entry_font, state='readonly')
@@ -35,52 +47,49 @@ class GUI:
 
         self.entry.grid(row=0, column=0, columnspan=len(
             self.grid[0]), sticky='we')
+        self.putButtons()
 
-        self.usegrid()
-
-    def usegrid(self):
+    def putButtons(self):
         for y, yval in enumerate(self.grid):
             for x, xval in enumerate(yval):
-                self.button(xval, x, y+1, *self.b_size)
-
-    def settext(self, text):
-        self.entry.delete(0, 'end')
-        self.entry.insert(0, str(text))
-
-    def gettext(self):
-        return self.entry.get()
-
-    def addtext(self, text):
-        self.entry.insert('end', str(text))
+                self.button(xval, x, y+1)
 
     def addInput(self, value):
+        def settext(text):
+            self.entry.delete(0, 'end')
+            self.entry.insert(0, str(text))
+
+        def gettext(): return self.entry.get()
+        def addtext(text): return self.entry.insert('end', str(text))
+        def cleartext(): return self.entry.delete(0, 'end')
+        def getlast(): return self.entry.get()[-1]
+        def dectext(): return self.entry.delete(len(gettext())-1)
+
         self.entry['state'] = 'normal'
 
-        if self.gettext() == 'ERROR':
-            self.entry.delete(0, 'end')
+        if gettext() == 'ERROR':
+            cleartext()
+
         if value == '=':
-            try:
-                result = eval(self.gettext().replace('^', '**'))
-                if len(str(result)) >= 22:
-                    result = '{:e}'.format(result)
-                self.settext(formatnum(result))
-            except Exception:
-                self.settext('ERROR')
+            settext(evaluate(gettext()))
         elif value == '<':
-            self.entry.delete(len(self.gettext())-1)
+            dectext()
         elif value == 'CE':
-            self.entry.delete(0, 'end')
+            cleartext()
         if value in ['=', '<', 'CE']:
             self.entry['state'] = 'readonly'
             return
         if value in '/*+':
-            if len(self.gettext()[-1]) == 0 or self.gettext()[-1] in '+-*/':
+            if len(gettext()) == 0 or getlast() in '+-*/':
                 return
+        if gettext() == '0' and value in '0123456789':
+            dectext()
 
-        self.entry.insert('end', value)
+        addtext(value)
         self.entry['state'] = 'readonly'
 
-    def button(self, value, x, y, width, height, padding=0):
+    def button(self, value, x, y, padding=0):
+        width, height = self.b_size
         btn = tkinter.Button(self.master, text=value, command=lambda: self.addInput(
             value), width=width, height=height, font=self.b_font)
 
@@ -95,12 +104,3 @@ class GUI:
 root = tkinter.Tk()
 gui = GUI(root)
 root.mainloop()
-
-'''
-||||||||
-+ - * /
-7 8 9 ce
-4 5 6 c
-1 2 3 .
-| 0 ^ =
-'''
