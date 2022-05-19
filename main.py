@@ -1,19 +1,15 @@
 import tkinter
+from string import printable
 
 
 def convert(base, num, new_base):
-    def toDigits(n, b):
-        digits = ''
-        lst = {10: 'A', 11: 'B', 12: 'C', 13: 'D', 14: 'E', 15: 'F'}
-        while n > 0:
-            a = n % b
-            a = a in lst and lst[a] or str(a)
-            digits = a + digits
-            n = n // b
-        return digits
-
-    n = int(str(num), base)
-    return toDigits(n, new_base)
+    def c(dec, base):
+        out = ''
+        while dec > base-1:
+            out = printable[dec % base] + out
+            dec //= base
+        return printable[dec] + out
+    return c(int(str(num), base), new_base)
 
 
 def formatnum(x):
@@ -47,11 +43,12 @@ class GUI:
         self.b_size = (10, 4)
         self.grid = [
             ['+', '-', '*', '/', 'bin'],
-            ['7', '8', '9', 'CE', 'dec'],
-            ['4', '5', '6', '<', 'oct'],
+            ['7', '8', '9', 'CE', 'oct'],
+            ['4', '5', '6', '<', 'dec'],
             ['1', '2', '3', '.', 'duo'],
             ['^', '0', 'concat', '=', 'hex']
         ]
+
         self.style = {
             '.': {'text': '•'},
             '=': {'bg': '#FF7F27'}
@@ -59,8 +56,9 @@ class GUI:
 
         self.master = master
         master.title('Calculator')
-        master.geometry('{}x423'.format(
-            22*self.b_size[1]*len(self.grid[0])+10))
+
+        height = 22*self.b_size[1]*len(self.grid[0])+10
+        master.geometry(f'{height}x423')
 
         self.entry_font = 'Fixedsys 24'
         self.b_font = 'Fixedsys 12'
@@ -95,6 +93,7 @@ class GUI:
         self.view['state'] = 'readonly'
 
     def handler(self, value):
+        print(self.expr)
         if 'ERROR' in self.expr:
             self.expr = ['']
         if value in '0123456789.':
@@ -117,10 +116,16 @@ class GUI:
             while self.expr[-1] == '':
                 self.expr.pop(-1)
             self.expr[-1] = self.expr[-1][:-1]
+
         elif value == 'CE':
             self.expr = ['']
         elif value == 'bin':
             self.changeBase(2)
+        elif value == 'oct':
+            self.changeBase(8)
+        elif value == 'dec':
+            self.changeBase(10)
+
         self.expr[-1] = self.expr[-1][0:10]
 
         self.update()
@@ -142,6 +147,18 @@ class GUI:
             if isnum(v):
                 self.expr[i] = convert(self.base, v, base)
         self.base = base
+
+        for i in self.master.children:
+            child = self.master.children[i]
+            if type(child) == tkinter.Button:
+                if child['text'].isdigit() and int(child['text']) > self.base-1:
+                    child['bg'] = 'gray'
+                    child['state'] = 'disabled'
+                else:
+                    if child['text'] in self.style:
+                        continue
+                    child['bg'] = 'white'
+                    child['state'] = 'normal'
         self.update()
 
 
