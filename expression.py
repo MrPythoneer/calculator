@@ -1,19 +1,23 @@
 from string import printable
+from typing import List
 
 
-def isdigit(value):
+CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def isnumber(n: str) -> bool:
     try:
-        int(value, 36)
+        int(n, 36)
         return True
-    except:
+    except ValueError:
         return False
 
 
-def convertNumber(num, base):
+def to_new_base(num: int, new_base: int) -> str:
     out = ''
-    while num > base-1:
-        out = printable[num % base] + out
-        num //= base
+    while num > new_base-1:
+        out = printable[num % new_base] + out
+        num //= new_base
     return (printable[num] + out).upper()
 
 
@@ -22,7 +26,7 @@ class Expression:
         self.value = ['0']
         self.base = 10
 
-    def _changeBase(self, new_base):
+    def _change_base(self, new_base: int) -> List[str]:
         output = []
         for val in self.value:
             if '.' in val:
@@ -30,25 +34,26 @@ class Expression:
                 break
 
             if '(' in val and ')' not in val:
-                val = '(' + convertNumber(int(val.replace('(', ''),
-                                              self.base), new_base)
+                num = int(val.replace('(', ''), self.base)
+                val = '(' + to_new_base(num, new_base)
             elif ')' in val and '(' not in val:
-                val = convertNumber(
-                    int(val.replace('(', ''), self.base), new_base) + ')'
+                num = int(val.replace('(', ''), self.base)
+                val = to_new_base(num, new_base) + ')'
             elif '(' in val and ')' in val:
-                val = '(' + convertNumber(int(val.replace('(',
-                                                          '').replace(')', ''), self.base), new_base) + ')'
-            elif isdigit(val):
-                val = convertNumber(int(val, self.base), new_base)
+                num = int(val.replace('(','').replace(')', ''), self.base)
+                val = '(' + to_new_base(num, new_base) + ')'
+            elif isnumber(val):
+                val = to_new_base(int(val, self.base), new_base)
+
             output.append(val)
 
         return output
 
-    def changeBase(self, base):
-        self.value = self._changeBase(base)
+    def set_base(self, base: int) -> None:
+        self.value = self._change_base(base)
         self.base = base
 
-    def add(self, value):
+    def insert(self, value: str) -> None:
         if value in '.0123456789ABCDE()':
             if self.value[-1] == '0' and value != '.':
                 self.value[-1] = value
@@ -66,10 +71,10 @@ class Expression:
             else:
                 self.value[-1] = value
 
-    def clear(self):
+    def clear(self) -> None:
         self.value = ['0']
 
-    def trim(self):
+    def trim(self) -> None:
         if len(self.value) == 1 and len(self.value[-1]) == 1:
             self.value[-1] = '0'
 
@@ -79,14 +84,14 @@ class Expression:
         if len(self.value[-1]) != 1:
             self.value[-1] = self.value[-1][:-1]
 
-    def eval(self):
+    def eval(self) -> None:
         old_base = self.base
         try:
             if self.base != 10:
-                self.changeBase(10)
+                self.set_base(10)
                 expr = eval(''.join(self.value).replace('^', '**'))
-                self.changeBase(old_base)
-                self.value = [convertNumber(expr, old_base)]
+                self.set_base(old_base)
+                self.value = [to_new_base(expr, old_base)]
             else:
                 expr = eval(''.join(self.value).replace('^', '**'))
                 self.value = [str(expr)]

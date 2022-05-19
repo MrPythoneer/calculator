@@ -6,7 +6,7 @@ CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 class GUI:
-    def __init__(self, master):
+    def __init__(self, master: tkinter.Tk):
         self.expr = Expression()
         self.b_size = (10, 4)
 
@@ -46,27 +46,25 @@ class GUI:
 
         self.view.grid(row=0, column=0, columnspan=len(self.grid[0]), sticky='we')
         self.entry.grid(row=1, column=0, columnspan=len(self.grid[0]), sticky='we')
-        self.placeButtons()
-
-        self.update()
-
-    def placeButtons(self):
+        
         for y, yval in enumerate(self.grid):
             for x, xval in enumerate(yval):
                 self.button(xval, x, y+2)
 
-    def update(self):
+        self.update()
+
+    def update(self) -> None:
         children = self.master.children
         for i, child in enumerate(children.values()):
-            if type(child) == tkinter.Button:
+            if isinstance(child, tkinter.Button):
                 if child['text'] in '•/':
                     if self.expr.base != 10:
                         child['bg'] = 'gray'
                         child['state'] = 'disabled'
                         continue
-                    else:
-                        child['bg'] = 'white'
-                        child['state'] = 'normal'
+                
+                    child['bg'] = 'white'
+                    child['state'] = 'normal'
 
                 if child['text'] in '0123456789ABCDE' and int(CHARACTERS.index(child['text'])) > self.expr.base-1:
                     child['bg'] = 'gray'
@@ -90,7 +88,7 @@ class GUI:
         self.entry['state'] = 'readonly'
         self.view['state'] = 'readonly'
 
-    def handler(self, value):
+    def handler(self, value: str) -> None:
         if self.expr.value == ['ERROR']:
             self.expr.clear()
 
@@ -101,21 +99,21 @@ class GUI:
         elif value == 'CE':
             self.expr.clear()
         elif value == 'bin':
-            self.expr.changeBase(2)
+            self.expr.set_base(2)
         elif value == 'oct':
-            self.expr.changeBase(8)
+            self.expr.set_base(8)
         elif value == 'dec':
-            self.expr.changeBase(10)
+            self.expr.set_base(10)
         elif value == 'duodec':
-            self.expr.changeBase(12)
+            self.expr.set_base(12)
         elif value == 'hex':
-            self.expr.changeBase(16)
+            self.expr.set_base(16)
         else:
-            self.expr.add(value)
+            self.expr.insert(value)
 
         self.update()
 
-    def button(self, value, x, y, padding=0):
+    def button(self, value: str, x: int, y: int, padding: int = 0) -> tkinter.Button:
         width, height = self.b_size
         btn = tkinter.Button(
             self.master, 		text=value,
