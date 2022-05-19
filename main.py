@@ -10,12 +10,15 @@ def formatnum(x):
 
 class GUI:
     def __init__(self, master):
-        self.entry_font = 'Helvetica 25'
-        self.b_font = 'Helvetica 12'
+        self.entry_font = 'Fixedsys 24'
+        self.b_font = 'Fixedsys 12'
 
         self.master = master
-        master.title = 'Calculator'
-        master.geometry('399x471')
+        master.title('Calculator')
+        master.geometry('359x388')
+
+        self.entry = tkinter.Entry(
+            master, justify='right', font=self.entry_font, state='readonly')
 
         self.b_size = (10, 4)
         self.grid = [
@@ -23,13 +26,13 @@ class GUI:
             ['7', '8', '9', 'CE'],
             ['4', '5', '6', '<'],
             ['1', '2', '3', '.'],
-            ['^', '0', ' ', '=']]
+            ['^', '0', '=', '=']
+        ]
         self.style = {
             '.': {'text': '•'},
-            '=': {'bg': '#FF7F27'}}
+            '=': {'bg': '#FF7F27'}
+        }
 
-        self.entry = tkinter.Entry(
-            master, justify='right', font=self.entry_font, state='readonly')
         self.entry.grid(row=0, column=0, columnspan=len(
             self.grid[0]), sticky='we')
 
@@ -57,8 +60,11 @@ class GUI:
             self.entry.delete(0, 'end')
         if value == '=':
             try:
-                self.settext(eval(self.gettext().replace('^', '**')))
-            except:
+                result = eval(self.gettext().replace('^', '**'))
+                if len(str(result)) >= 22:
+                    result = '{:e}'.format(result)
+                self.settext(formatnum(result))
+            except Exception:
                 self.settext('ERROR')
         elif value == '<':
             self.entry.delete(len(self.gettext())-1)
@@ -68,7 +74,7 @@ class GUI:
             self.entry['state'] = 'readonly'
             return
         if value in '/*+':
-            if self.gettext()[-1] in '+-*/' or len(self.gettext()[-1]) == 0:
+            if len(self.gettext()[-1]) == 0 or self.gettext()[-1] in '+-*/':
                 return
 
         self.entry.insert('end', value)
@@ -89,6 +95,7 @@ class GUI:
 root = tkinter.Tk()
 gui = GUI(root)
 root.mainloop()
+
 '''
 ||||||||
 + - * /
