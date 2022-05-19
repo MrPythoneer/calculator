@@ -1,8 +1,8 @@
 import tkinter
-from string import printable
 from expression import Expression
 
-printable = printable[:36].upper()
+
+CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 class GUI:
@@ -33,24 +33,19 @@ class GUI:
 
         self.master = master
         master.title('Calculator')
-        master.geometry('{}x{}'.format(
-            9*self.b_size[0]*len(self.grid[0]),
-            int(18.7*self.b_size[1]*len(self.grid))
-        )
-        )
+
+        width = 9 * self.b_size[0] * len(self.grid[0])
+        height = 18.7 * self.b_size[1] * len(self.grid)
+        master.geometry(f'{width:.0f}x{height:.0f}')
 
         self.entry_font = 'Fixedsys 24'
         self.b_font = 'Fixedsys 15'
 
-        self.view = tkinter.Entry(
-            master, justify='right', font=self.entry_font, state='readonly')
-        self.entry = tkinter.Entry(
-            master, justify='right', font=self.entry_font, state='readonly')
+        self.view = tkinter.Entry(master, justify='right', font=self.entry_font, state='readonly')
+        self.entry = tkinter.Entry(master, justify='right', font=self.entry_font, state='readonly')
 
-        self.view.grid(row=0, column=0, columnspan=len(
-            self.grid[0]), sticky='we')
-        self.entry.grid(row=1, column=0, columnspan=len(
-            self.grid[0]), sticky='we')
+        self.view.grid(row=0, column=0, columnspan=len(self.grid[0]), sticky='we')
+        self.entry.grid(row=1, column=0, columnspan=len(self.grid[0]), sticky='we')
         self.placeButtons()
 
         self.update()
@@ -73,7 +68,7 @@ class GUI:
                         child['bg'] = 'white'
                         child['state'] = 'normal'
 
-                if child['text'] in '0123456789ABCDE' and int(printable.index(child['text'])) > self.expr.base-1:
+                if child['text'] in '0123456789ABCDE' and int(CHARACTERS.index(child['text'])) > self.expr.base-1:
                     child['bg'] = 'gray'
                     child['state'] = 'disabled'
                 else:
